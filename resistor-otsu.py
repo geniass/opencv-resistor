@@ -33,8 +33,14 @@ cv2.imshow("contours", contour_img)
 
 peri = cv2.arcLength(sorted_contours[0], True)
 approx = cv2.approxPolyDP(sorted_contours[0], 0.02 * peri, True)
+
 mask = np.zeros(img.shape,np.uint8)
-cv2.drawContours(mask,sorted_contours,0,255,-1)
+rows,cols = img.shape[:2]
+[vx,vy,x,y] = cv2.fitLine(sorted_contours[0], cv2.cv.CV_DIST_L2,0,0.01,0.01)
+lefty = int((-x*vy/vx) + y) + 15
+righty = int(((cols-x)*vy/vx)+y) + 15
+cv2.line(mask,(cols-1,righty),(0,lefty),255,2)
+#cv2.drawContours(mask,sorted_contours,0,255,-1)
 pp = cv2.findNonZero(mask)
 
 cv2.namedWindow("lab", cv2.WINDOW_AUTOSIZE)
@@ -60,7 +66,7 @@ res2 = res.reshape((colour_img.shape))
 res_bgr = cv2.cvtColor(res2, cv2.COLOR_LAB2BGR)
 cv2.imshow("quantized", res_bgr)
 
-for index,colour in zip(range(0,7), centre):
+for colour in centre:
     range_img = cv2.inRange(res2, colour, colour)
     cv2.imshow("LAB = [" + str(colour[0]) + ", " + str(colour[1]) + ", " + str(colour[2]) + "]", range_img)
 
